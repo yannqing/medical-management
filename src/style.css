@@ -1,16 +1,24 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 隐藏整个滚动条 */
-.hide-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
+/* 确保 Markdown 样式生效 */
+.markdown-content h1 {
+  font-size: 2.25em !important;
+  font-weight: 800 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.8888889em !important;
+  line-height: 1.1111111 !important;
+  display: block !important;
 }
 
-/* Chrome, Safari and Opera */
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
+.prose {
+  max-width: none !important;
+  color: inherit !important;
+}
+
+.prose h1 {
+  color: inherit !important;
 }

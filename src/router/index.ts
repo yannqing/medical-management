@@ -6,7 +6,7 @@ const router = createRouter({
     {
       path: '/',
       name: '首页',
-      component: () => import('../views/IndexView.vue')
+      component: () => import('../views/IndexView.vue'),
     },
     {
       path: '/about',
@@ -19,19 +19,42 @@ const router = createRouter({
     {
       path: '/introduction',
       name: '产品介绍',
-      component: () => import('../views/IndexView.vue')
+      component: () => import('../views/IntroduceView.vue'),
+      children: [
+        {
+          path: '1',
+          name: '产品1',
+          component: () => import('../components/introduction/FirstProduct.vue'),
+        },
+        {
+          path: '2',
+          name: '产品2',
+          component: () => import('../components/introduction/SecondProduct.vue'),
+        },
+        {
+          path: '3',
+          name: '产品3',
+          component: () => import('../components/introduction/ThirdProduct.vue'),
+        },
+      ],
     },
     {
       path: '/deal',
       name: '解决方案',
-      component: () => import('../views/IndexView.vue')
+      component: () => import('../views/DealView.vue'),
     },
     {
       path: '/plan',
       name: '合作计划',
-      component: () => import('../views/IndexView.vue')
+      component: () => import('../views/PlanView.vue'),
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  console.log('Route to:', to)
+  console.log('Route from:', from)
+  next()
 })
 
 export default router

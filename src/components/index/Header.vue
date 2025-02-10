@@ -5,7 +5,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { useConstantStore } from '@/stores/constant.ts'
 import IndexDrawer from '@/components/IndexDrawer.vue'
 
-const routes = router.getRoutes();
+const routes = router.getRoutes().filter(route => {
+  // 只保留顶级路由（路径中只有一个 / 的路由）
+  return route.path.split('/').length === 2;
+});
 const router2 = useRouter();
 const route = useRoute();
 const constant = useConstantStore();
@@ -35,7 +38,7 @@ onMounted(() => {
 
     <v-spacer></v-spacer>
 
-    <v-btn icon>
+    <v-btn icon @click="console.log('route.path', route.path)">
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
 
@@ -48,14 +51,36 @@ onMounted(() => {
         v-model="tab"
         align-tabs="title"
       >
-        <v-tab
-          v-for="item in routes"
-          :key="item.path"
-          color="#f78166"
-          rounded
-          :value="item.path"
-          @click="router2.push(item.path)"
-        >{{item.name}}</v-tab>
+        <v-menu
+          v-for="(item, index) in routes"
+          open-on-hover
+          :key="index"
+          :disabled="item.children.length === 0"
+        >
+          <template v-slot:activator="{ props }">
+
+
+          <v-tab
+            :key="item.path"
+            color="#f78166"
+            rounded="lg"
+            v-bind="props"
+            :value="item.path"
+            @click="router2.push(item.path)"
+          >{{item.name}}</v-tab>
+          </template>
+
+          <v-list>
+            <v-list-item
+              v-for="(it, index) in item.children"
+              :key="index"
+              class="cursor-pointer"
+              @click="router2.push(item.path + '/' + it.path)"
+            >
+              {{it.name}}
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-tabs>
     </template>
 
@@ -64,20 +89,6 @@ onMounted(() => {
   <!--    侧边栏-->
   <IndexDrawer />
 
-  <v-tabs-window v-model="tab">
-    <v-tabs-window-item
-      v-for="item in routes"
-      :key="item.path"
-      :value="item.path"
-      class="bg-accent-500"
-    >
-      <v-card flat color="accent">
-        <div style="">
-          <router-view />
-        </div>
-      </v-card>
-    </v-tabs-window-item>
-  </v-tabs-window>
 </template>
 
 <style scoped>

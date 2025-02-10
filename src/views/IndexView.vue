@@ -1,6 +1,6 @@
 <template>
 <!--  主页-->
-<div>
+<div class="w-full">
 <!--  轮播图-->
   <Carousel />
 <!--  介绍-->

@@ -28,27 +28,36 @@
 </script>
 
 <template>
-<div style="display: flex; flex-direction: row;">
+<div class="flex flex-row">
   <v-container
     class="spacing-playground pa-6"
     fluid
   >
   <v-row>
     <v-col v-for="(item, index) in data" :key="index">
-      <div style="width: 20vw; display: flex; justify-content: center; align-items: center; flex-direction: column">
-        <v-avatar size="120" style="">
-          <v-img
-            :alt="item.alt"
-            :src="item.image"
-          ></v-img>
-        </v-avatar>
-        <div style="margin: 5px; font-size: 20px; font-weight: bold; color: #f78166">
-          {{item.title}}
-        </div>
-        <div>
-          {{item.description}}
-        </div>
-      </div>
+      <v-hover >
+        <template v-slot:default="{ isHovering, props }">
+          <v-card
+            variant="flat"
+            :color="isHovering ? 'blue-lighten-4' : undefined"
+            v-bind="props"
+            class="pa-3 cursor-pointer"
+            style="width: 20vw; display: flex; justify-content: center; align-items: center; flex-direction: column">
+            <v-avatar size="120" style="">
+              <v-img
+                :alt="item.alt"
+                :src="item.image"
+              ></v-img>
+            </v-avatar>
+            <div style="margin: 5px; font-size: 20px; font-weight: bold; color: #f78166">
+              {{item.title}}
+            </div>
+            <div>
+              {{item.description}}
+            </div>
+          </v-card>
+        </template>
+      </v-hover>
     </v-col>
   </v-row>
   </v-container>

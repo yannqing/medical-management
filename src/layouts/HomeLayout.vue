@@ -9,12 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import Footer from '@/components/index/Footer.vue'
-import Header from '@/components/index/Header.vue'
+import Footer from '@/components/Footer.vue'
+import Header from '@/components/Header.vue'
 </script>
 
 <style scoped>
-.v-container {
-  max-width: 100% !important;
-}
 </style>

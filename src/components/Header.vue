@@ -4,10 +4,11 @@ import router from '@/router'
 import { useRoute, useRouter } from 'vue-router'
 import { useConstantStore } from '@/stores/constant.ts'
 import IndexDrawer from '@/components/IndexDrawer.vue'
+import { TABS } from '@/constant/routerType.ts'
 
 const routes = router.getRoutes().filter(route => {
   // 只保留顶级路由（路径中只有一个 / 的路由）
-  return route.path.split('/').length === 2;
+  return route.meta && route.meta.type === TABS;
 });
 const router2 = useRouter();
 const route = useRoute();
@@ -38,7 +39,7 @@ onMounted(() => {
 
     <v-spacer></v-spacer>
 
-    <v-btn icon @click="console.log('route.path', route.path)">
+    <v-btn icon @click="console.log('routes', routes)">
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
 
@@ -58,7 +59,6 @@ onMounted(() => {
           :disabled="item.children.length === 0"
         >
           <template v-slot:activator="{ props }">
-
 
           <v-tab
             :key="item.path"

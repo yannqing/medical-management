@@ -68,8 +68,9 @@ const userStore = useUserStore()
         <v-btn block color="#f78166" v-if="userStore.isLogin">
           Logout
         </v-btn>
+<!--        TODO 常量-->
         <v-btn
-          @click="router.push('/login')"
+          @click="router.push('/auth/login')"
           block
           color="#f78166"
           v-else>

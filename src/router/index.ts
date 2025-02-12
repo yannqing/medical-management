@@ -13,12 +13,31 @@ const router = createRouter({
       }
     },
     {
-      path: '/login',
-      name: '登录',
-      component: () => import('../views/LoginView.vue'),
+      path: '/auth',
+      name: '认证',
+      redirect: '/auth/login',
+      component: () => import('../views/AuthView.vue'),
       meta: {
         layout: 'blank'
-      }
+      },
+      children: [
+        {
+          path: 'login',
+          name: '登录',
+          component: () => import('../views/LoginView.vue'),
+          meta: {
+            layout: 'blank'
+          }
+        },
+        {
+          path: 'register',
+          name: '注册',
+          component: () => import('../views/RegisterView.vue'),
+          meta: {
+            layout: 'blank'
+          }
+        },
+      ]
     },
     {
       path: '/about',

@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: '首页',
-      component: () => import('../views/IndexView.vue'),
+      component: () => import('../views/home/IndexView.vue'),
       meta: {
         type: TABS
       }
@@ -16,7 +16,7 @@ const router = createRouter({
       path: '/auth',
       name: '认证',
       redirect: '/auth/login',
-      component: () => import('../views/AuthView.vue'),
+      component: () => import('../views/auth/AuthView.vue'),
       meta: {
         layout: 'blank'
       },
@@ -24,7 +24,7 @@ const router = createRouter({
         {
           path: 'login',
           name: '登录',
-          component: () => import('../views/LoginView.vue'),
+          component: () => import('../views/auth/LoginView.vue'),
           meta: {
             layout: 'blank'
           }
@@ -32,7 +32,7 @@ const router = createRouter({
         {
           path: 'register',
           name: '注册',
-          component: () => import('../views/RegisterView.vue'),
+          component: () => import('../views/auth/RegisterView.vue'),
           meta: {
             layout: 'blank'
           }
@@ -40,9 +40,24 @@ const router = createRouter({
       ]
     },
     {
+      path: '/admin',
+      name: '管理员页面',
+      component: () => import('../views/admin/AdminView.vue'),
+      meta: {
+        layout: 'blank'
+      },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'DashBoard',
+          component: () => import('../views/admin/DashBoard.vue')
+        }
+      ]
+    },
+    {
       path: '/about',
       name: '关于',
-      component: () => import('../views/AboutView.vue'),
+      component: () => import('../views/home/AboutView.vue'),
       meta: {
         type: TABS
       }
@@ -50,7 +65,7 @@ const router = createRouter({
     {
       path: '/introduction',
       name: '产品介绍',
-      component: () => import('../views/IntroduceView.vue'),
+      component: () => import('../views/home/IntroduceView.vue'),
       meta: {
         type: TABS
       },
@@ -80,7 +95,7 @@ const router = createRouter({
     {
       path: '/deal',
       name: '解决方案',
-      component: () => import('../views/DealView.vue'),
+      component: () => import('../views/home/DealView.vue'),
       meta: {
         type: TABS
       },
@@ -88,7 +103,7 @@ const router = createRouter({
     {
       path: '/plan',
       name: '合作计划',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: TABS
       },
@@ -97,7 +112,7 @@ const router = createRouter({
     {
       path: '/reserve',
       name: '预约管理',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: PATIENT_DRAWER,
       },
@@ -105,7 +120,7 @@ const router = createRouter({
     {
       path: '/fee',
       name: '费用查询',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: PATIENT_DRAWER,
       },
@@ -113,7 +128,7 @@ const router = createRouter({
     {
       path: '/patient-medical-records',
       name: '查看医疗记录',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: PATIENT_DRAWER,
       },
@@ -121,7 +136,7 @@ const router = createRouter({
     {
       path: '/healthy',
       name: '健康管理与提醒',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: PATIENT_DRAWER,
       },
@@ -130,7 +145,7 @@ const router = createRouter({
     {
       path: '/scheduling',
       name: '排班管理',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: DOCTOR_DRAWER,
       },
@@ -138,7 +153,7 @@ const router = createRouter({
     {
       path: '/patient-reserve',
       name: '患者预约',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: DOCTOR_DRAWER,
       },
@@ -146,7 +161,7 @@ const router = createRouter({
     {
       path: '/doctor-records',
       name: '医疗记录',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: DOCTOR_DRAWER,
       },
@@ -154,7 +169,7 @@ const router = createRouter({
     {
       path: '/fee-management',
       name: '费用管理与开票',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: DOCTOR_DRAWER,
       },
@@ -162,7 +177,7 @@ const router = createRouter({
     {
       path: '/chat-online',
       name: '在线咨询与反馈',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/home/PlanView.vue'),
       meta: {
         type: DOCTOR_DRAWER,
       },
@@ -171,7 +186,7 @@ const router = createRouter({
     {
       path: '/personal-information',
       name: '个人中心',
-      component: () => import('../views/PlanView.vue'),
+      component: () => import('../views/admin/AdminView.vue'),
       meta: {
         type: COMMON_DRAWER,
       },

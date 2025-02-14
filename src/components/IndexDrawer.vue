@@ -40,7 +40,7 @@ const userStore = useUserStore()
       <v-list-item
         v-for="(item, index) in myCommonDrawRoutes"
         :key="index"
-
+        @click="router.push('/admin')"
         prepend-icon="mdi-account"
         :title="item.name"
         :value="item.path"

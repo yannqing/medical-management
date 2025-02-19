@@ -1,0 +1,13 @@
+import axios from '@/config/axios.ts'
+
+export const getAllUsersAction = () => {
+  return axios({
+    url: '/user',
+    method: 'get',
+    params: {
+    },
+    headers: {
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySW5mbyI6IntcInVzZXJJZFwiOjEsXCJ1c2VybmFtZVwiOlwieWFubnFpbmdcIixcInBhc3N3b3JkXCI6bnVsbCxcImFkZHJlc3NcIjpcInNkYVwiLFwicGhvbmVcIjpcImZkc2Y5OTk5XCIsXCJlbWFpbFwiOlwicndlXCIsXCJhZ2VcIjowLFwic2lnbmF0dXJlXCI6XCIyMzNcIixcInNleFwiOjEsXCJhdmF0YXJcIjpcIm51bGxcIixcIm5pY2tOYW1lXCI6XCJ5YW5ucWluZzAwMFwiLFwiZW5hYmxlZFwiOjEsXCJhY2NvdW50Tm9FeHBpcmVkXCI6MSxcImNyZWRlbnRpYWxzTm9FeHBpcmVkXCI6MSxcImFjY291bnROb0xvY2tlZFwiOjEsXCJjcmVhdGVUaW1lXCI6MTczNjUyNDczOTAwMCxcInVwZGF0ZVRpbWVcIjoxNzM5MDQxODk2MDAwLFwiaXNEZWxldGVcIjowLFwiZGVzY3JpcHRpb25cIjpcIjMzXCJ9Iiwicm9sZXMiOiJbe1wiY3JlYXRlVGltZVwiOlwiMjAyNS0wMS0xNiAxMDoxNjozNVwiLFwiaWRcIjowLFwiaXNEZWxldGVcIjowLFwicmVtYXJrXCI6XCLnrqHnkIblkZhcIixcInJvbGVOYW1lXCI6XCJhZG1pblwiLFwidXBkYXRlVGltZVwiOlwiMjAyNS0wMi0xMiAxODowNDo0NlwifV0iLCJleHAiOjE3Mzk5Njg3MTR9.C5SpIn9Gc9KAduVkEI0xIChv79DclkxPVjg3-6iyhSw'
+    }
+  })
+}

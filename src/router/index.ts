@@ -62,6 +62,11 @@ const router = createRouter({
           name: 'Admin',
           component: () => import('../views/admin/NewView.vue')
         },
+        {
+          path: 'user-management',
+          name: 'UserManagement',
+          component: () => import('../components/admin/UserManagement.vue')
+        },
       ]
     },
     {

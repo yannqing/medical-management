@@ -3,10 +3,12 @@
 </script>
 
 <template>
-  <v-row class="ml-7 mr-3">
+<div class="ml-10 mr-5">
+<!--  第一行-->
+  <v-row class="">
     <v-col cols="15">
       <v-card
-        style="border-radius: 15px; height: 20vh;"
+        class="first-row-card"
         subtitle="This is a card subtitle"
         text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus!"
         title="This is a title"
@@ -14,8 +16,7 @@
     </v-col>
 
     <v-col cols="2">
-      <v-card
-      style="border-radius: 15px; height: 20vh;">
+      <v-card class="first-row-card">
         <template v-slot:title>
           This is a title
         </template>
@@ -27,16 +28,14 @@
     </v-col>
 
     <v-col cols="2">
-      <v-card
-      style="border-radius: 15px; height: 20vh;">
+      <v-card class="first-row-card">
         <v-card-item>
           <v-card-title>This is a title</v-card-title>
         </v-card-item>
       </v-card>
     </v-col>
     <v-col cols="2">
-      <v-card
-        style="border-radius: 15px; height: 20vh;">
+      <v-card class="first-row-card">
         <v-card-item>
           <v-card-title>This is a title</v-card-title>
         </v-card-item>
@@ -45,8 +44,8 @@
   </v-row>
 
 
-<!--  第二行-->
-  <v-row class="ml-7 mr-3">
+  <!--  第二行-->
+  <v-row class="">
     <v-col cols="15">
       <v-card
         style="border-radius: 15px; height: 60vh;"
@@ -74,8 +73,8 @@
     </v-col>
   </v-row>
 
-<!--  第三行-->
-  <v-row class="ml-7 mr-3">
+  <!--  第三行-->
+  <v-row class="">
     <v-col cols="15">
       <v-card
         style="border-radius: 15px; height: 60vh;"
@@ -102,8 +101,18 @@
       </v-card>
     </v-col>
   </v-row>
+</div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+
+// first row card style
+$first-row-card-height: 20vh;         // card height
+$first-row-card-border-radius: 15px;  // card border radius
+
+.first-row-card {
+  height: $first-row-card-height;
+  border-radius: $first-row-card-border-radius;
+}
 
 </style>

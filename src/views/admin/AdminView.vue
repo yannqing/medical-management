@@ -27,8 +27,8 @@ const rail = ref(false)
         ></v-list-item>
 
         <v-divider />
-        <v-list-subheader class="ml-5">Home</v-list-subheader>
         <v-list density="compact" nav>
+          <v-list-subheader>Home</v-list-subheader>
 <!--          TODO 变量-->
           <v-list-item
             prepend-icon="mdi-view-dashboard"
@@ -68,13 +68,27 @@ const rail = ref(false)
           </v-list-group>
         </v-list>
 
+        <v-list density="compact" nav>
+          <v-list-subheader>Management</v-list-subheader>
+
+          <v-list-item
+            prepend-icon="mdi-account-box"
+            title="User Management"
+            :active="route.path === '/admin/user-management'"
+            @click="router.push('/admin/user-management')"
+            value="user-management"
+          ></v-list-item>
+        </v-list>
+
         <template v-slot:append>
           <div class="pa-2" v-if="!rail">
             <v-btn prepend-icon="mdi-account-circle" block> Logout </v-btn>
           </div>
         </template>
+
+
       </v-navigation-drawer>
-      <v-main style="height: 100vh; overflow: auto" class="">
+      <v-main style="height: 100vh; overflow: auto;" class="">
         <HeadCard v-model:rail="rail" />
         <router-view />
       </v-main>

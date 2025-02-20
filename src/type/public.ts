@@ -6,6 +6,13 @@ export interface BasicPageResponse<T> {
   total: number;
 }
 
+export interface BasicPageRequest {
+  current?: number;
+  pageSize?: number;
+  sortField?: string;
+  sortOrder?: string;
+}
+
 export interface BaseResponse<T> {
   code: number;
   data: T;

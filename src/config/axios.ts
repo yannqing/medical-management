@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from 'vue-sonner'
 
 const service = axios.create({
   baseURL: 'http://212.64.18.207:8091',
@@ -12,7 +13,7 @@ service.interceptors.request.use(
     const url = (config.baseURL || "") + (config.url || "");
 
     // 验证请求路径 request url
-    console.log("Request URL:", url);
+    console.log("request url: ", url, ", request method: ", config.method);
 
     // 系统错误：请求头无法识别
     if (!config.headers) {
@@ -36,6 +37,10 @@ service.interceptors.response.use(
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
+    if (error.response && error.response.data) {
+      toast.error(error.response.data.msg);
+    }
+
 
     console.error('响应报错！！！error: ', error);
   },

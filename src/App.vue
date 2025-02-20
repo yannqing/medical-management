@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { Toaster } from 'vue-sonner'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import BlankLayout from '@/layouts/BlankLayout.vue'
 
@@ -14,6 +15,7 @@ const layout = computed(() => {
 <template>
   <v-app>
     <v-main>
+      <Toaster richColors/>
       <component :is="layout">
         <router-view />
       </component>

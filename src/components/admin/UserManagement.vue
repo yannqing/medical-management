@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, onMounted } from 'vue'
+import { computed, nextTick, ref, reactive, onMounted, watch } from 'vue'
 import { getAllUsersAction } from '@/api/admin/UserManagement.ts'
-import type { GetAllUsersResponseType } from '@/type/admin/UserManagement.ts'
+import type {
+  EditUserRequestType,
+  GetAllUsersRequestType,
+  GetAllUsersResponseType
+} from '@/type/admin/UserManagement.ts'
 import type { BaseResponse, BasicPageResponse } from '@/type/public.ts'
 
 const formTitle = computed(() => {
-  return editedIndex.value === -1 ? 'New Item' : 'Edit Item'
+  return editedIndex.value === -1 ? 'New User' : 'Edit User'
+})
+
+const getAllUsersRequest: GetAllUsersRequestType = reactive({
+  current: 1,
+  pageSize: 10,
 })
 
 const loading = ref<boolean>(true);
@@ -21,36 +30,29 @@ const headers = [
     key: 'name',
   },
   { title: 'UserInfo', key: 'userInfo' },
-  { title: 'role', key: 'role' },
-  { title: 'Carbs (g)', key: 'carbs' },
-  { title: 'Protein (g)', key: 'protein' },
+  { title: 'Role', key: 'role' },
+  { title: 'NickName', key: 'nickName' },
+  { title: 'Phone', key: 'phone' },
   { title: 'Actions', key: 'actions', sortable: false },
 ];
 const desserts = ref<GetAllUsersResponseType[]>([]);
-const pageSize = ref(0);
-const currentPage = ref(0);
+const pages = ref(0);
 const editedIndex = ref(-1);
-const editedItem = ref<GetAllUsersResponseType>({
-  userId: 0,
+const editedItem = ref<EditUserRequestType>({
+  userId: -2,
   username: '',
   nickName: '',
   email: '',
-  roles: [{
-    id: 0,
-    roleName: '',
-    remark: ''
-  }],
+  phone: '',
+  avatar: ''
 });
-const defaultItem = ref<GetAllUsersResponseType>({
-  userId: 0,
+const defaultItem = ref<EditUserRequestType>({
   username: '',
   nickName: '',
   email: '',
-  roles: [{
-    id: 0,
-    roleName: '',
-    remark: ''
-  }],
+  phone: '',
+  password: '',
+  avatar: ''
 });
 
 // 数据初始化
@@ -129,15 +131,17 @@ const defaultItem = ref<GetAllUsersResponseType>({
 //   ]
 // }
 
-function editItem(item: GetAllUsersResponseType) {
-  editedIndex.value = desserts.value.indexOf(item)
+function editItem(item: GetAllUsersRequestType) {
+  editedIndex.value = item.userId ? item.userId : -1;
+  console.log("editIndex", editedIndex.value)
+  // editedIndex.value = desserts.value.indexOf(item)
   editedItem.value = Object.assign({}, item)
   dialog.value = true
 }
 
-function deleteItem(item: GetAllUsersResponseType) {
-  editedIndex.value = desserts.value.indexOf(item)
-  editedItem.value = Object.assign({}, item)
+function deleteItem() {
+  // editedIndex.value = desserts.value.indexOf(item)
+  // editedItem.value = Object.assign({}, item)
   dialogDelete.value = true
 }
 
@@ -151,6 +155,7 @@ function close() {
   nextTick(() => {
     editedItem.value = Object.assign({}, defaultItem.value)
     editedIndex.value = -1
+
   })
 }
 
@@ -163,48 +168,53 @@ function closeDelete() {
 }
 
 function save() {
-  if (editedIndex.value > -1) {
-    Object.assign(desserts.value[editedIndex.value], editedItem.value)
-  } else {
-    desserts.value.push(editedItem.value)
-  }
+  // if (editedIndex.value > -1) {
+  //   Object.assign(desserts.value[editedIndex.value], editedItem.value)
+  // } else {
+  //   desserts.value.push(editedItem.value)
+  // }
   close()
 }
 
+// 获取角色标签颜色
 function getRoleColor(id: number) {
   if (id === 1) {
     return 'blue-lighten-1'
   } else if (id === 2) {
-    return 'pink-lighten-1'
+    return 'teal-accent-4'
   }
 
-  return 'green-lighten-1'
+  return 'pink-lighten-1'
 }
 
 onMounted(async () => {
+  // 获取数据
+  await fetchData()
+  loading.value = false;
+})
 
-  const res: BaseResponse<BasicPageResponse<GetAllUsersResponseType>> = await getAllUsersAction()
+watch(() => getAllUsersRequest.current, async (newValue) => {
+  loading.value = true;
+  getAllUsersRequest.current = newValue
+  await fetchData();
+
+  loading.value = false;
+})
+
+const fetchData = async () => {
+  const res: BaseResponse<BasicPageResponse<GetAllUsersResponseType>> = await getAllUsersAction(getAllUsersRequest);
   if (res.code === 200) {
     desserts.value = res.data.records;
-    currentPage.value = res.data.current;
-    pageSize.value = res.data.size;
-    console.log('desserts', desserts.value)
+    getAllUsersRequest.current = res.data.current;
+    getAllUsersRequest.pageSize = res.data.size;
+    pages.value = res.data.pages;
   } else {
     // 消息弹窗
     console.log("错误，获取信息失败")
   }
-  loading.value = false;
 
-
-
-  console.log("res:", res)
-
-
-  // setTimeout(() => {
-  //   initialize()
-  //   loading.value = false
-  // }, 2000)
-})
+  console.log("fetchData:", res);
+}
 
 </script>
 
@@ -214,8 +224,8 @@ onMounted(async () => {
     style="border-radius: 15px;">
     <v-card-title>User Management</v-card-title>
       <v-data-table
-        :page="currentPage"
-        :items-per-page="pageSize"
+        :page="getAllUsersRequest.current"
+        :items-per-page="getAllUsersRequest.pageSize"
         :search="search"
         :loading="loading"
         :headers="headers"
@@ -260,80 +270,127 @@ onMounted(async () => {
                   Add Content
                 </v-btn>
               </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
+              <v-card
+                style="border-radius: 15px;">
+                <v-card-title class="font-mono text-none mt-3" style="margin-left: 16px">
+                  <div class="flex flex-row justify-between">
+                    <div class="flex flex-row mt-2">
+                      <v-icon color="blue-darken-1">mdi-information</v-icon>
+                      <div class="ml-2">
+                        {{ formTitle }}
+                      </div>
+                    </div>
+                    <div class="mr-5">
+                      <v-btn icon="mdi-window-close" @click="close()" variant="plain" />
+                    </div>
+                  </div>
                 </v-card-title>
 
-                <v-card-text>
+                <v-card-text style="padding-bottom: 0">
                   <v-container>
-                    <v-row>
+                    <v-row style="">
                       <v-col
+                        style="padding: 5px;"
                         cols="12"
-                        md="4"
-                        sm="6"
+                        md="6"
                       >
                         <v-text-field
                           v-model="editedItem.username"
-                          label="Dessert name"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          class="font-mono text-none"
+                          label="Username"
                         ></v-text-field>
                       </v-col>
+                      <v-spacer />
                       <v-col
+                        style="padding: 5px;"
                         cols="12"
-                        md="4"
-                        sm="6"
+                        md="6"
                       >
                         <v-text-field
                           v-model="editedItem.avatar"
-                          label="Calories"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          label="Avatar"
                         ></v-text-field>
                       </v-col>
                       <v-col
+                        style="padding: 5px;"
                         cols="12"
-                        md="4"
-                        sm="6"
+                        md="6"
                       >
                         <v-text-field
                           v-model="editedItem.nickName"
-                          label="Fat (g)"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          label="NickName"
                         ></v-text-field>
                       </v-col>
                       <v-col
+                        style="padding: 5px;"
                         cols="12"
-                        md="4"
-                        sm="6"
+                        md="6"
                       >
                         <v-text-field
-                          v-model="editedItem.address"
-                          label="Carbs (g)"
+                          v-model="editedItem.phone"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          label="phone"
                         ></v-text-field>
                       </v-col>
                       <v-col
+                        style="padding: 5px;"
                         cols="12"
-                        md="4"
-                        sm="6"
+                        md="6"
                       >
                         <v-text-field
-                          v-model="editedItem.age"
-                          label="Protein (g)"
+                          v-model="editedItem.email"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          label="Email"
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col
+                        v-if="editedIndex === -1"
+                        style="padding: 5px;"
+                        cols="12"
+                        md="6"
+                      >
+                        <v-text-field
+                          v-model="editedItem.password"
+                          color="blue-lighten-1"
+                          density="compact"
+                          variant="outlined"
+                          label="Password"
                         ></v-text-field>
                       </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
 
-                <v-card-actions>
+                <v-card-actions class="mr-5 mb-2">
                   <v-spacer></v-spacer>
                   <v-btn
-                    color="blue-darken-1"
-                    variant="text"
+                    color="#f78166"
+                    class="text-none"
+                    rounded="xl"
+                    variant="elevated"
                     @click="close"
                   >
                     Cancel
                   </v-btn>
                   <v-btn
-                    color="blue-darken-1"
-                    variant="text"
+                    color="blue-lighten-1"
+                    class="text-none"
+                    rounded="xl"
+                    variant="elevated"
                     @click="save"
                   >
                     Save
@@ -343,13 +400,37 @@ onMounted(async () => {
             </v-dialog>
 <!--            删除数据的弹窗-->
             <v-dialog v-model="dialogDelete" max-width="500px">
-              <v-card>
-                <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
-                  <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
-                  <v-spacer></v-spacer>
+              <v-card style="border-radius: 15px;">
+                <v-card-title class="text-mono ml-1 mt-3">
+                  <div class="flex flex-row">
+                    <div>
+                      <v-icon color="red">mdi-information</v-icon>
+                    </div>
+                    <div class="ml-2" style="margin-top: 1px">
+                      Delete User
+                    </div>
+                  </div>
+                </v-card-title>
+                <v-card-text class="py-3">
+                  Are you sure you want to delete this item?
+                </v-card-text>
+                <v-card-actions
+
+                >
+                  <div class="flex justify-end mb-3">
+                    <v-btn
+                      color="#f78166"
+                      class="text-none"
+                      rounded="xl"
+                      variant="elevated"
+                      @click="closeDelete">Cancel</v-btn>
+                    <v-btn
+                      color="blue-lighten-1"
+                      class="text-none mx-3"
+                      rounded="xl"
+                      variant="elevated"
+                      @click="deleteItemConfirm">OK</v-btn>
+                  </div>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -393,7 +474,7 @@ onMounted(async () => {
                 <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
               </v-list-item>
             </td>
-            <td>
+            <td style="padding: 0">
               <v-chip
                 class="ma-2"
                 v-if="item.roles && item.roles.length > 0"
@@ -403,7 +484,7 @@ onMounted(async () => {
               </v-chip>
             </td>
             <td>{{ item.nickName }}</td>
-            <td>{{ item.address }}</td>
+            <td>{{ item.phone }}</td>
             <td>
               <v-icon
                 color="blue-lighten-1"
@@ -416,7 +497,7 @@ onMounted(async () => {
               <v-icon
                 size="small"
                 color="red-lighten-1"
-                @click="deleteItem(item)"
+                @click="deleteItem()"
               >
                 mdi-trash-can-outline
               </v-icon>
@@ -461,6 +542,18 @@ onMounted(async () => {
               ></v-btn>
             </template>
           </v-empty-state>
+        </template>
+
+        <template v-slot:bottom>
+          <div class="text-center pt-2">
+            <v-pagination
+              rounded="circle"
+              v-model="getAllUsersRequest.current"
+              :length="pages"
+              next-icon="mdi-menu-right"
+              prev-icon="mdi-menu-left"
+            ></v-pagination>
+          </div>
         </template>
       </v-data-table>
   </v-card>

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, reactive, onMounted, watch } from 'vue'
-import { getAllUsersAction } from '@/api/admin/UserManagement.ts'
+import { addUserAction, deleteUserAction, getAllUsersAction, updateUserAction } from '@/api/admin/UserManagement.ts'
 import type {
   EditUserRequestType,
   GetAllUsersRequestType,
   GetAllUsersResponseType
 } from '@/type/admin/UserManagement.ts'
 import type { BaseResponse, BasicPageResponse } from '@/type/public.ts'
+import { toast } from 'vue-sonner'
+import { AxiosError } from 'axios'
+import { SYSTEM_ERROR } from '@/type/ErrorType.ts'
+import { getAllRolesAction } from '@/api/admin/RoleManagement.ts'
+import type { Role } from '@/type/admin/RoleManagement.ts'
 
 const formTitle = computed(() => {
   return editedIndex.value === -1 ? 'New User' : 'Edit User'
@@ -18,6 +23,7 @@ const getAllUsersRequest: GetAllUsersRequestType = reactive({
 })
 
 const loading = ref<boolean>(true);
+const saveLoading = ref<boolean>(false)
 
 const search = ref('');
 const dialog = ref(false);
@@ -35,6 +41,7 @@ const headers = [
   { title: 'Phone', key: 'phone' },
   { title: 'Actions', key: 'actions', sortable: false },
 ];
+const roleItems = ref<Role[]>([]);
 const desserts = ref<GetAllUsersResponseType[]>([]);
 const pages = ref(0);
 const editedIndex = ref(-1);
@@ -42,6 +49,7 @@ const editedItem = ref<EditUserRequestType>({
   userId: -2,
   username: '',
   nickName: '',
+  roleIds: 1,
   email: '',
   phone: '',
   avatar: ''
@@ -49,104 +57,60 @@ const editedItem = ref<EditUserRequestType>({
 const defaultItem = ref<EditUserRequestType>({
   username: '',
   nickName: '',
+  roleIds: 1,
   email: '',
   phone: '',
   password: '',
   avatar: ''
 });
 
-// 数据初始化
-// function initialize() {
-//   desserts.value = [
-//     {
-//       name: 'Frozen Yogurt',
-//       calories: 159,
-//       fat: 6.0,
-//       carbs: 24,
-//       protein: 4.0,
-//     },
-//     {
-//       name: 'Ice cream sandwich',
-//       calories: 237,
-//       fat: 9.0,
-//       carbs: 37,
-//       protein: 4.3,
-//     },
-//     {
-//       name: 'Eclair',
-//       calories: 262,
-//       fat: 16.0,
-//       carbs: 23,
-//       protein: 6.0,
-//     },
-//     {
-//       name: 'Cupcake',
-//       calories: 305,
-//       fat: 3.7,
-//       carbs: 67,
-//       protein: 4.3,
-//     },
-//     {
-//       name: 'Gingerbread',
-//       calories: 356,
-//       fat: 16.0,
-//       carbs: 49,
-//       protein: 3.9,
-//     },
-//     {
-//       name: 'Jelly bean',
-//       calories: 375,
-//       fat: 0.0,
-//       carbs: 94,
-//       protein: 0.0,
-//     },
-//     {
-//       name: 'Lollipop',
-//       calories: 392,
-//       fat: 0.2,
-//       carbs: 98,
-//       protein: 0,
-//     },
-//     {
-//       name: 'Honeycomb',
-//       calories: 408,
-//       fat: 3.2,
-//       carbs: 87,
-//       protein: 6.5,
-//     },
-//     {
-//       name: 'Donut',
-//       calories: 452,
-//       fat: 25.0,
-//       carbs: 51,
-//       protein: 4.9,
-//     },
-//     {
-//       name: 'KitKat',
-//       calories: 518,
-//       fat: 26.0,
-//       carbs: 65,
-//       protein: 7,
-//     },
-//   ]
-// }
+const rules = reactive({
+  required: (value: string) => !!value || 'Not Null.',
+  counter: (value: string) => value.length <= 20 || 'Max 20 characters',
+  email: (value: string) => {
+    const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return pattern.test(value) || 'Invalid e-mail.'
+  },
+},)
 
-function editItem(item: GetAllUsersRequestType) {
+const editItem = async (item: GetAllUsersRequestType) => {
   editedIndex.value = item.userId ? item.userId : -1;
-  console.log("editIndex", editedIndex.value)
   // editedIndex.value = desserts.value.indexOf(item)
-  editedItem.value = Object.assign({}, item)
+  editedItem.value.userId = item.userId
+  editedItem.value.username = item.username
+  editedItem.value.avatar = item.avatar
+  editedItem.value.nickName = item.nickName
+  editedItem.value.email = item.email
+  editedItem.value.phone = item.phone
+  editedItem.value.password = item.password
+  editedItem.value.roleIds = item.roles[0].id
   dialog.value = true
 }
 
-function deleteItem() {
-  // editedIndex.value = desserts.value.indexOf(item)
-  // editedItem.value = Object.assign({}, item)
+function deleteItem(id: number) {
+  editedIndex.value = id
   dialogDelete.value = true
 }
 
-function deleteItemConfirm() {
-  desserts.value.splice(editedIndex.value, 1)
+const deleteItemConfirm = async () => {
+  try {
+    const { data: res}: { data: BaseResponse<boolean> } = await deleteUserAction(editedIndex.value);
+    if (res.code === 200) {
+      toast.success("删除 id：" + editedIndex.value + " 的用户成功");
+      loading.value = true
+      await fetchData();
+      loading.value = false
+    } else {
+      toast.error(res.msg);
+    }
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error(SYSTEM_ERROR);
+    }
+  }
+
   closeDelete()
 }
 
@@ -167,12 +131,51 @@ function closeDelete() {
   })
 }
 
-function save() {
-  // if (editedIndex.value > -1) {
-  //   Object.assign(desserts.value[editedIndex.value], editedItem.value)
-  // } else {
-  //   desserts.value.push(editedItem.value)
-  // }
+// TODO 点击按钮后，网络延迟导致多次调用接口！
+const save = async () => {
+  saveLoading.value = true
+  if (editedIndex.value > -1) {
+    // 修改用户
+    console.log("editedItem: ", editedItem.value)
+    try {
+      const { data: editResult }: { data: BaseResponse<boolean>} = await updateUserAction(editedItem.value);
+      if (editResult.code === 200) {
+        toast.success('修改用户信息成功');
+        loading.value = true
+        await fetchData();
+        loading.value = false
+      } else {
+        toast.error(editResult.msg);
+      }
+    } catch(error: unknown) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(SYSTEM_ERROR);
+      }
+    }
+
+  } else {
+    // 新增用户
+    try {
+      const { data: addResult }: { data: BaseResponse<boolean> } = await addUserAction(editedItem.value);
+      if(addResult.code === 200) {
+        toast.success('新增用户信息成功');
+        loading.value = true
+        await fetchData();
+        loading.value = false
+      } else {
+        toast.error(addResult.msg);
+      }
+    } catch(error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(SYSTEM_ERROR);
+      }
+    }
+  }
+  saveLoading.value = false
   close()
 }
 
@@ -189,7 +192,8 @@ function getRoleColor(id: number) {
 
 onMounted(async () => {
   // 获取数据
-  await fetchData()
+  await fetchData();
+  await fetchRoles();
   loading.value = false;
 })
 
@@ -201,19 +205,46 @@ watch(() => getAllUsersRequest.current, async (newValue) => {
   loading.value = false;
 })
 
+const fetchRoles = async () => {
+  try {
+    const { data: res }: { res: BaseResponse<BasicPageResponse<Role>>} = await getAllRolesAction(null);
+    console.log("roles res: ", res.data);
+    if (res.code === 200) {
+      roleItems.value = res.data.records;
+    } else {
+      toast.error(res.msg);
+    }
+  } catch(error: unknown) {
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error(SYSTEM_ERROR);
+    }
+  }
+}
+
 const fetchData = async () => {
-  const res: BaseResponse<BasicPageResponse<GetAllUsersResponseType>> = await getAllUsersAction(getAllUsersRequest);
-  if (res.code === 200) {
-    desserts.value = res.data.records;
-    getAllUsersRequest.current = res.data.current;
-    getAllUsersRequest.pageSize = res.data.size;
-    pages.value = res.data.pages;
-  } else {
-    // 消息弹窗
-    console.log("错误，获取信息失败")
+  try{
+    const { data: res}: { data: BaseResponse<BasicPageResponse<GetAllUsersResponseType>>} = await getAllUsersAction(getAllUsersRequest);
+    console.log("fetchData:", res);
+    if (res.code === 200) {
+      desserts.value = res.data.records;
+      getAllUsersRequest.current = res.data.current;
+      getAllUsersRequest.pageSize = res.data.size;
+      pages.value = res.data.pages;
+    } else {
+      // 消息弹窗
+      toast.error(res.msg);
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response?.data?.msg) {
+      toast.error(error.response.data.msg);
+    } else {
+      toast.error(SYSTEM_ERROR);
+    }
   }
 
-  console.log("fetchData:", res);
+
 }
 
 </script>
@@ -297,6 +328,7 @@ const fetchData = async () => {
                         <v-text-field
                           v-model="editedItem.username"
                           color="blue-lighten-1"
+                          :rules="[rules.required, rules.counter]"
                           density="compact"
                           variant="outlined"
                           class="font-mono text-none"
@@ -326,6 +358,7 @@ const fetchData = async () => {
                           v-model="editedItem.nickName"
                           color="blue-lighten-1"
                           density="compact"
+                          :rules="[rules.required, rules.counter]"
                           variant="outlined"
                           label="NickName"
                         ></v-text-field>
@@ -352,6 +385,7 @@ const fetchData = async () => {
                           v-model="editedItem.email"
                           color="blue-lighten-1"
                           density="compact"
+                          :rules="[rules.required, rules.email]"
                           variant="outlined"
                           label="Email"
                         ></v-text-field>
@@ -364,12 +398,30 @@ const fetchData = async () => {
                         md="6"
                       >
                         <v-text-field
+                          type="password"
                           v-model="editedItem.password"
                           color="blue-lighten-1"
                           density="compact"
                           variant="outlined"
+                          :rules="[rules.required]"
                           label="Password"
                         ></v-text-field>
+                      </v-col>
+                      <v-col
+                        style="padding: 5px;"
+                        cols="12"
+                        md="6"
+                      >
+                        <v-select
+                          label="Role"
+                          v-model="editedItem.roleIds"
+                          density="compact"
+                          color="blue-lighten-1"
+                          :items="roleItems"
+                          item-title="remark"
+                          item-value="id"
+                          variant="outlined"
+                        ></v-select>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -387,6 +439,7 @@ const fetchData = async () => {
                     Cancel
                   </v-btn>
                   <v-btn
+                    :loading="loading"
                     color="blue-lighten-1"
                     class="text-none"
                     rounded="xl"
@@ -465,7 +518,7 @@ const fetchData = async () => {
                 <template v-slot:prepend>
                   <v-avatar
                     color="grey-darken-3"
-                    image="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                    :image="item.avatar"
                   ></v-avatar>
                 </template>
 
@@ -497,7 +550,7 @@ const fetchData = async () => {
               <v-icon
                 size="small"
                 color="red-lighten-1"
-                @click="deleteItem()"
+                @click="deleteItem(item.userId)"
               >
                 mdi-trash-can-outline
               </v-icon>

@@ -20,6 +20,8 @@ export interface GetAllUsersRequestType extends BasicPageRequest {
   username?: string
   nickName?: string
   avatar?: string
+  password?: string
+  roles?: Role[]
   email?: string
   phone?: string
   description?: string
@@ -34,6 +36,7 @@ export interface EditUserRequestType {
   username?: string
   password?: string
   nickName?: string
+  roleIds?: number
   avatar?: string
   email?: string
   phone?: string

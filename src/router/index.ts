@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { COMMON_DRAWER, DOCTOR_DRAWER, PATIENT_DRAWER, TABS } from '@/constant/routerType.ts'
+import { COMMON_DRAWER, DOCTOR_DRAWER, PATIENT_DRAWER, TABS } from '@/constant/drawerType.ts'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +42,7 @@ const router = createRouter({
     {
       path: '/admin',
       name: '管理员页面',
+      redirect: '/admin/dashboard',
       component: () => import('../views/admin/AdminView.vue'),
       meta: {
         layout: 'blank'

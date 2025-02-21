@@ -1,13 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import HeadCard from '@/components/admin/HeadCard.vue'
 import { useRoute, useRouter } from 'vue-router'
+import type { BaseResponse } from '@/type/public.ts'
+import { getMyselfInfoAction } from '@/api/admin/UserManagement.ts'
+import { toast } from 'vue-sonner'
+import { AxiosError } from 'axios'
+import { SYSTEM_ERROR } from '@/type/ErrorType.ts'
+import { useUserStore } from '@/stores/user.ts'
+import { logoutAction } from '@/api/auth'
 
 const route = useRoute();
 const router = useRouter();
 
 const drawer = ref(true)
 const rail = ref(false)
+const userStore = useUserStore();
+
+
+const handleLogout = async () => {
+  try {
+    const { data: res }: { res: BaseResponse<any> } = await logoutAction();
+    console.log("logout res:", res);
+    if (res.code === 20010) {
+      toast.success("退出登录成功！");
+    } else {
+      toast.error(res.msg);
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response?.data?.msg) {
+      toast.error(error.response.data.msg);
+    } else {
+      toast.error(SYSTEM_ERROR);
+    }
+  }
+}
+
+onMounted(async () => {
+  try {
+    const { data: res }: { res: BaseResponse<any> } = await getMyselfInfoAction();
+    console.log("get myself into res:", res);
+    if (res.code === 200) {
+      localStorage.setItem('avatar', res.data.avatar)
+    } else {
+      toast.error(res.msg);
+    }
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.response?.data?.msg) {
+      toast.error(error.response.data.msg);
+    } else {
+      toast.error(SYSTEM_ERROR);
+    }
+  }
+})
 </script>
 
 <template>
@@ -81,9 +126,26 @@ const rail = ref(false)
         </v-list>
 
         <template v-slot:append>
-          <div class="pa-2" v-if="!rail">
-            <v-btn prepend-icon="mdi-account-circle" block> Logout </v-btn>
-          </div>
+          <v-card
+            rounded="lg"
+            variant="flat"
+            append-icon="mdi-logout"
+            subtitle="admin"
+            color="blue-lighten-5"
+            class="pa-1 mx-3 mb-2"
+          >
+            <template v-slot:prepend>
+              <v-avatar :image="userStore.avatar"></v-avatar>
+            </template>
+            <template v-slot:title>
+              <div class="text-mono">{{userStore.userName}}</div>
+            </template>
+            <template v-slot:append>
+              <v-icon @click="handleLogout">
+                mdi-logout
+              </v-icon>
+            </template>
+          </v-card>
         </template>
 
 

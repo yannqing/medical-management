@@ -1,13 +1,40 @@
 import axios from '@/config/axios.ts'
-import type { GetAllUsersRequestType } from '@/type/admin/UserManagement.ts'
+import type { EditUserRequestType, GetAllUsersRequestType } from '@/type/admin/UserManagement.ts'
 
 export const getAllUsersAction = (getAllUsersRequest: GetAllUsersRequestType) => {
   return axios({
     url: '/user',
     method: 'get',
     params: getAllUsersRequest,
-    headers: {
-      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySW5mbyI6IntcInVzZXJJZFwiOjEsXCJ1c2VybmFtZVwiOlwieWFubnFpbmdcIixcInBhc3N3b3JkXCI6bnVsbCxcImFkZHJlc3NcIjpcInNkYVwiLFwicGhvbmVcIjpcImZkc2Y5OTk5XCIsXCJlbWFpbFwiOlwicndlXCIsXCJhZ2VcIjowLFwic2lnbmF0dXJlXCI6XCIyMzNcIixcInNleFwiOjEsXCJhdmF0YXJcIjpcIm51bGxcIixcIm5pY2tOYW1lXCI6XCJ5YW5ucWluZzAwMFwiLFwiZW5hYmxlZFwiOjEsXCJhY2NvdW50Tm9FeHBpcmVkXCI6MSxcImNyZWRlbnRpYWxzTm9FeHBpcmVkXCI6MSxcImFjY291bnROb0xvY2tlZFwiOjEsXCJjcmVhdGVUaW1lXCI6MTczNjUyNDczOTAwMCxcInVwZGF0ZVRpbWVcIjoxNzM5MDQxODk2MDAwLFwiaXNEZWxldGVcIjowLFwiZGVzY3JpcHRpb25cIjpcIjMzXCJ9Iiwicm9sZXMiOiJbe1wiY3JlYXRlVGltZVwiOlwiMjAyNS0wMS0xNiAxMDoxNjozNVwiLFwiaWRcIjowLFwiaXNEZWxldGVcIjowLFwicmVtYXJrXCI6XCLnrqHnkIblkZhcIixcInJvbGVOYW1lXCI6XCJhZG1pblwiLFwidXBkYXRlVGltZVwiOlwiMjAyNS0wMi0xMiAxODowNDo0NlwifV0iLCJleHAiOjE3NDAwNjA3MzZ9.svo6tPGmRv1-9q3aFoQEpW2u9ieIBRl8g0m0mjodsIc'
-    }
+  })
+}
+
+export const updateUserAction = (updateUserRequest: EditUserRequestType) => {
+  return axios({
+    url: '/user/update',
+    method: 'put',
+    params: updateUserRequest
+  })
+}
+
+export const addUserAction = (addUserRequest: EditUserRequestType) => {
+  return axios({
+    url: '/user',
+    method: 'post',
+    params: addUserRequest
+  })
+}
+
+export const deleteUserAction = (id: number) => {
+  return axios({
+    url: `/user/${id}`,
+    method: 'delete',
+  })
+}
+
+export const getMyselfInfoAction = () => {
+  return axios({
+    url: '/user/getMyselfInfo',
+    method: 'GET'
   })
 }

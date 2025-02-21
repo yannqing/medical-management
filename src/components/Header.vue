@@ -4,7 +4,7 @@ import router from '@/router'
 import { useRoute, useRouter } from 'vue-router'
 import { useConstantStore } from '@/stores/constant.ts'
 import IndexDrawer from '@/components/IndexDrawer.vue'
-import { TABS } from '@/constant/routerType.ts'
+import { TABS } from '@/constant/drawerType.ts'
 
 const routes = router.getRoutes().filter(route => {
   // 只保留顶级路由（路径中只有一个 / 的路由）

@@ -1,8 +1,9 @@
 import axios from "axios";
-import { toast } from 'vue-sonner'
+import { whiteList } from '@/constant/router'
 
 const service = axios.create({
   baseURL: 'http://212.64.18.207:8091',
+  // baseURL: 'http://localhost:8080',
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 50000, // request timeout
 })
@@ -21,6 +22,11 @@ service.interceptors.request.use(
         `Expected 'config' and 'config.headers' not to be undefined`,
       );
     }
+
+    // 非白名单路径放置 token
+    if (!whiteList.includes(config.url || 'null')) {
+      config.headers['token'] = localStorage.getItem('token');
+    }
     return config;
   },
   function (error) {
@@ -32,17 +38,14 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   function (response) {
-    return response.data;
+    return response;
   },
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    if (error.response && error.response.data) {
-      toast.error(error.response.data.msg);
-    }
 
-
-    console.error('响应报错！！！error: ', error);
+    console.error('响应拦截器报错：error=>: ', error);
+    return Promise.reject(error);
   },
 )
 

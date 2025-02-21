@@ -2,7 +2,7 @@
 
 import { useConstantStore } from '@/stores/constant.ts'
 import router from '@/router'
-import { COMMON_DRAWER } from '@/constant/routerType.ts'
+import { COMMON_DRAWER } from '@/constant/drawerType.ts'
 import { useUserStore } from '@/stores/user.ts'
 
 const myCommonDrawRoutes = router.getRoutes().filter( router => {

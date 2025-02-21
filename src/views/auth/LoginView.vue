@@ -86,11 +86,43 @@
 import { ref } from 'vue'
 import syringe from '@/assets/syringe.png' // 导入图片
 import google from '@/assets/google.png'
-import router from '@/router'
+import { loginAction } from '@/api/auth'
+import type { BaseResponse } from '@/type/public.ts'
+import { toast } from 'vue-sonner'
+import { useRouter } from 'vue-router'
+import type { LoginResponseType } from '@/type/auth'
+import { useUserStore } from '@/stores/user.ts'
+import { AxiosError } from 'axios'
+
+const router = useRouter();
 
 const remember = ref(false)
 const username = ref('')
 const password = ref('')
+
+const userStore = useUserStore();
+
+const signIn = async () => {
+  try {
+    const { data: res }: { data: BaseResponse<LoginResponseType> } = await loginAction({
+      username: username.value,
+      password: password.value
+    });
+    console.log("login result: ", res)
+    if (res.code === 20001) {
+      toast.success("登录成功");
+      userStore.login(res.data.token, res.data.userId, res.data.userName, res.data.roles)
+      await router.push('/');
+    } else {
+      toast.error(res.msg);
+    }
+  } catch (error: unknown) {
+    console.error("login error: ", error);
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    }
+  }
+}
 </script>
 
 <style scoped>

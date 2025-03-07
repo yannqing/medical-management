@@ -2,8 +2,7 @@ import axios from "axios";
 import { whiteList } from '@/constant/router'
 
 const service = axios.create({
-  baseURL: 'http://212.64.18.207:8091',
-  // baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8080',
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 50000, // request timeout
 })
